@@ -10,5 +10,8 @@
     "hardhat": "^3.21.2",
     "typescript": "~6.0.3",
     "viem": "^2.57.13"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.4.0"
   }
 }
