@@ -1,0 +1,46 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_34-4d1c3ac90fcd3b626e91e840611b1ccba77b3e11",
+  "solcVersion": "0.8.34",
+  "solcLongVersion": "0.8.34+commit.80d5c536",
+  "compilerType": "solc",
+  "userSourceNameMap": {
+    "contracts/InspectionRegistry.sol": "project/contracts/InspectionRegistry.sol",
+    "contracts/InspectionRegistry.t.sol": "project/contracts/InspectionRegistry.t.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "osaka",
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/InspectionRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.24;\r\n\r\ncontract InspectionRegistry {\r\n    enum Status {\r\n        NONE,\r\n        SUBMITTED,\r\n        APPROVED,\r\n        REVOKED\r\n    }\r\n\r\n    struct Record {\r\n        address vendor;\r\n        bytes32 evidenceHash;\r\n        Status status;\r\n        uint64 updatedAt;\r\n    }\r\n\r\n    address public immutable regulator;\r\n    mapping(bytes32 => Record) public records;\r\n\r\n    event InspectionSubmitted(\r\n        bytes32 indexed id,\r\n        address indexed vendor,\r\n        bytes32 evidenceHash\r\n    );\r\n\r\n    event StatusChanged(\r\n        bytes32 indexed id,\r\n        Status status\r\n    );\r\n\r\n    event InspectionRevoked(\r\n        bytes32 indexed id,\r\n        bytes32 reasonHash\r\n    );\r\n\r\n    error Unauthorized();\r\n    error InvalidStatus();\r\n    error EmptyEvidence();\r\n    error EmptyReason();\r\n\r\n    constructor(address regulator_) {\r\n        require(regulator_ != address(0), \"zero regulator\");\r\n        regulator = regulator_;\r\n    }\r\n\r\n    function submit(bytes32 id, bytes32 evidenceHash) external {\r\n        if (evidenceHash == bytes32(0)) revert EmptyEvidence();\r\n\r\n        Record storage record = records[id];\r\n        if (record.status != Status.NONE) revert InvalidStatus();\r\n\r\n        record.vendor = msg.sender;\r\n        record.evidenceHash = evidenceHash;\r\n        record.status = Status.SUBMITTED;\r\n        record.updatedAt = uint64(block.timestamp);\r\n\r\n        emit InspectionSubmitted(id, msg.sender, evidenceHash);\r\n    }\r\n\r\n    function approve(bytes32 id) external {\r\n        if (msg.sender != regulator) revert Unauthorized();\r\n\r\n        Record storage record = records[id];\r\n        if (record.status != Status.SUBMITTED) revert InvalidStatus();\r\n\r\n        record.status = Status.APPROVED;\r\n        record.updatedAt = uint64(block.timestamp);\r\n\r\n        emit StatusChanged(id, Status.APPROVED);\r\n    }\r\n\r\n    function revoke(bytes32 id, bytes32 reasonHash) external {\r\n        if (msg.sender != regulator) revert Unauthorized();\r\n        if (reasonHash == bytes32(0)) revert EmptyReason();\r\n\r\n        Record storage record = records[id];\r\n        if (record.status != Status.APPROVED) revert InvalidStatus();\r\n\r\n        record.status = Status.REVOKED;\r\n        record.updatedAt = uint64(block.timestamp);\r\n\r\n        emit StatusChanged(id, Status.REVOKED);\r\n        emit InspectionRevoked(id, reasonHash);\r\n    }\r\n}"
+      },
+      "project/contracts/InspectionRegistry.t.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.24;\r\n\r\nimport \"./InspectionRegistry.sol\";\r\n\r\ncontract NonRegulatorCaller {\r\n    function approve(\r\n        InspectionRegistry registry,\r\n        bytes32 id\r\n    ) external {\r\n        registry.approve(id);\r\n    }\r\n}\r\n\r\ncontract InspectionRegistryTest {\r\n    InspectionRegistry registry;\r\n    bytes32 id = keccak256(\"LIFT-01\");\r\n    bytes32 evidence = keccak256(\"report-v1\");\r\n    bytes32 reason = keccak256(\"safety-issue\");\r\n\r\n    function setUp() public {\r\n        registry = new InspectionRegistry(address(this));\r\n    }\r\n\r\n    function testSubmitThenApprove() public {\r\n        registry.submit(id, evidence);\r\n        registry.approve(id);\r\n\r\n        (\r\n            address vendor,\r\n            bytes32 storedEvidence,\r\n            InspectionRegistry.Status status,\r\n            uint64 updatedAt\r\n        ) = registry.records(id);\r\n\r\n        require(vendor == address(this), \"wrong vendor\");\r\n        require(storedEvidence == evidence, \"wrong evidence\");\r\n        require(\r\n            status == InspectionRegistry.Status.APPROVED,\r\n            \"record should be approved\"\r\n        );\r\n        require(updatedAt > 0, \"timestamp should be set\");\r\n    }\r\n\r\n    function testApproveUnknownReverts() public {\r\n        (bool success, ) = address(registry).call(\r\n            abi.encodeCall(registry.approve, (id))\r\n        );\r\n        require(!success, \"approve unknown must revert\");\r\n    }\r\n\r\n    function testDuplicateSubmissionReverts() public {\r\n        registry.submit(id, evidence);\r\n        (bool success, ) = address(registry).call(\r\n            abi.encodeCall(registry.submit, (id, evidence))\r\n        );\r\n        require(!success, \"duplicate submit must revert\");\r\n    }\r\n\r\n    function testNonRegulatorCannotApprove() public {\r\n        registry.submit(id, evidence);\r\n        NonRegulatorCaller caller = new NonRegulatorCaller();\r\n\r\n        (bool success, ) = address(caller).call(\r\n            abi.encodeCall(caller.approve, (registry, id))\r\n        );\r\n        require(!success, \"non-regulator must not approve\");\r\n\r\n        (, , InspectionRegistry.Status status, ) = registry.records(id);\r\n        require(\r\n            status == InspectionRegistry.Status.SUBMITTED,\r\n            \"state must remain submitted\"\r\n        );\r\n    }\r\n\r\n    function testRevokeWithReasonSuccess() public {\r\n        registry.submit(id, evidence);\r\n        registry.approve(id);\r\n        registry.revoke(id, reason);\r\n\r\n        (, , InspectionRegistry.Status status, ) = registry.records(id);\r\n        require(\r\n            status == InspectionRegistry.Status.REVOKED,\r\n            \"record should be revoked\"\r\n        );\r\n    }\r\n\r\n    function testRevokeEmptyReasonReverts() public {\r\n        registry.submit(id, evidence);\r\n        registry.approve(id);\r\n\r\n        (bool success, ) = address(registry).call(\r\n            abi.encodeCall(registry.revoke, (id, bytes32(0)))\r\n        );\r\n        require(!success, \"empty reason must revert\");\r\n\r\n        (, , InspectionRegistry.Status status, ) = registry.records(id);\r\n        require(\r\n            status == InspectionRegistry.Status.APPROVED,\r\n            \"state must remain approved\"\r\n        );\r\n    }\r\n}\r\n"
+      }
+    }
+  }
+}
