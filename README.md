@@ -52,5 +52,5 @@ Saat memanggil fungsi revoke tanpa menyertakan `reasonHash` yang valid, transaks
 **Keterbatasan:** AccessControl belum sepenuhnya bisa memisahkan identitas manusia yang menggunakan banyak wallet (Sybil).
 **Deklarasi AI:** Saya menggunakan asisten AI untuk memandu penyalinan kode dari PDF guna mencegah typo, serta memformat template README. Verifikasi dilakukan dengan menjalankan test secara lokal di WSL.
 
-**Refleksi (100-150 kata):**
+**Refleksi:**
 Perubahan dari V1 ke V2 menyadarkan saya bahwa sekadar menyembunyikan fungsi tidak sama dengan membatasi otorisasi. Pada asumsi V1, fungsi hanya diperiksa berdasarkan kondisi alur, tanpa memvalidasi siapa yang mengeksekusinya. Test `testVendorCannotApprove` berhasil menangkap bug potensial ketika fungsi dijalankan oleh pengguna yang tidak berhak. Risiko yang belum sepenuhnya teratasi adalah ketika seorang admin secara tidak sengaja atau sengaja mencabut role regulator tanpa menunjuk penggantinya, sehingga seluruh proses bisnis berhenti di tengah jalan (single point of failure pada admin). Melalui proses mutation check, saya juga melihat secara langsung bahwa automated test berfungsi sebagai sabuk pengaman utama sebelum kode dirilis.
