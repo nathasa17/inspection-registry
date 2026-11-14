@@ -67,7 +67,7 @@ contract InspectionRegistryV2 is AccessControl {
     }
 
     function approve(bytes32 id)
-        external onlyRole(REGULATOR_ROLE) atStatus(id, Status.SUBMITTED)
+        external atStatus(id, Status.SUBMITTED)
     {
         Record storage record = records[id];
 
