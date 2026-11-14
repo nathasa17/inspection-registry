@@ -1,0 +1,9 @@
+node_modules/
+cache/
+artifacts/
+coverage/
+ignition/deployments/
+.env
+.env.*
+*.log
+.DS_Store
