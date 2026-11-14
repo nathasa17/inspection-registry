@@ -67,7 +67,7 @@ contract InspectionRegistryV2 is AccessControl {
     }
 
     function approve(bytes32 id)
-        external atStatus(id, Status.SUBMITTED)
+        external onlyRole(REGULATOR_ROLE) atStatus(id, Status.SUBMITTED)
     {
         Record storage record = records[id];
 
@@ -79,7 +79,6 @@ contract InspectionRegistryV2 is AccessControl {
         emit StatusChanged(id, Status.SUBMITTED, Status.APPROVED, msg.sender);
     }
 
-    // PERBAIKAN: onlyRole(REGULATOR_ROLE) sebelumnya hilang di fungsi ini
     function revoke(bytes32 id, bytes32 reasonHash)
         external onlyRole(REGULATOR_ROLE) atStatus(id, Status.APPROVED)
     {
