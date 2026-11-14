@@ -3,10 +3,10 @@
 ## 1. Identitas
 - **Nama:** Nabila Shandy Nathasa (2313000005)
 - **Nama:** Anisa Kustiawati (2413000006)
-- **URL Repo:** [https://github.com/nathasa17/inspection-registry]
+- **URL Repo:** https://github.com/nathasa17/inspection-registry
 - **Branch:** `praktikum/minggu-10`
 - **Commit baseline (V1):** `a741cf18`
-- **Commit final (V2):** `ISI_SETELAH_COMMIT_FINAL`
+- **Commit final (V2):** `36f3c3e0`
 
 ## 2. Versi Tools
 | Tool | Versi |
@@ -57,45 +57,60 @@ V1 (`InspectionRegistry.sol`) dan test-nya tidak diubah dan dipertahankan sebaga
 Kombinasi lain ditolak. ID yang sudah terpakai (termasuk REVOKED) tidak dapat dipakai ulang.
 
 ## 6. Tabel Hasil Test
-Total **20 test V2** (16 referensi + 2 individual Pilihan A + 2 test tambahan `revoke`). Kolom "Actual" diisi dari output `npx hardhat test solidity` (lihat `images/week10/`).
+Total **20 test V2** (16 referensi + 2 individual Pilihan A + 2 test tambahan `revoke`). Seluruh test V2 berstatus ✔ lulus pada kolom "Actual" (total run: **26 passing**, yaitu 6 test V1 + 20 test V2). Bukti: `images/minggu10/03-test-v2-pass.png`.
+
+![Hasil test](images/minggu10/03-test-v2-pass.png)
 
 | Test | State awal | Actor | Aksi | Expected | Actual dan bukti |
 |---|---|---|---|---|---|
-| testSubmitStoresRecord | NONE | Vendor | submit | SUBMITTED; field & timestamp sesuai | ISI dari hasil run |
-| testHappyPathThroughRevoke | NONE | Vendor, Regulator | submit, approve, revoke | REVOKED; bukti utuh; alasan tersimpan | ISI |
-| testUnregisteredVendorCannotSubmit | NONE | Stranger | submit | AccessControlUnauthorizedAccount(stranger, VENDOR_ROLE); record tetap | ISI |
-| testVendorCannotApprove | SUBMITTED | Vendor | approve | AccessControlUnauthorizedAccount(vendor, REGULATOR_ROLE); record tetap | ISI |
-| testApproveUnknownRevertsWithExactError | NONE | Regulator | approve | InvalidStatus(id, SUBMITTED, NONE) | ISI |
-| testDuplicateCannotOverwriteRecord | SUBMITTED | Vendor | submit ulang | InvalidStatus(id, NONE, SUBMITTED); record tetap | ISI |
-| testEmptyIdReverts / testEmptyEvidenceReverts | NONE | Vendor | submit input kosong | EmptyId / EmptyEvidence | ISI |
-| testRevokeBeforeApprovalReverts | SUBMITTED | Regulator | revoke | InvalidStatus(id, APPROVED, SUBMITTED) | ISI |
-| testEmptyReasonLeavesApprovedRecordUnchanged | APPROVED | Regulator | revoke(id, 0) | EmptyReason; record & alasan tetap | ISI |
-| testRevokedRecordCannotBeApprovedAgain | REVOKED | Regulator | approve | InvalidStatus(id, SUBMITTED, REVOKED) | ISI |
-| testVendorCannotGrantItselfRegulatorRole | SUBMITTED | Vendor | grantRole | Unauthorized (admin role); tidak ada eskalasi | ISI |
-| testRevokedVendorCannotSubmitNewRecord | SUBMITTED | Vendor (role dicabut) | submit ID baru | Unauthorized; record lama tetap | ISI |
-| testAdminCanReplaceRegulator | SUBMITTED | Regulator lama/baru | approve | lama ditolak, baru berhasil | ISI |
-| testApprovalEmitsExactAuditEvent | SUBMITTED | Regulator | approve | 1 event; from=1, to=2; actor benar | ISI |
-| testUnauthorizedCallLeavesNoContractLogs | SUBMITTED | Vendor | approve | revert; 0 log | ISI |
-| testCannotApproveOwnSubmission (individual, negatif) | SUBMITTED | Vendor+Regulator | approve | SelfApprovalNotAllowed; record tetap | ISI |
-| testOtherRegulatorCanApprove (individual, positif) | SUBMITTED | Regulator lain | approve | APPROVED | ISI |
-| testVendorCannotRevoke (tambahan) | APPROVED | Vendor | revoke | Unauthorized (REGULATOR_ROLE); record & alasan tetap | ISI |
-| testStrangerCannotRevoke (tambahan) | APPROVED | Stranger | revoke | Unauthorized (REGULATOR_ROLE); record tetap | ISI |
+| testSubmitStoresRecord | NONE | Vendor | submit | SUBMITTED; field & timestamp sesuai | ✔ lulus |
+| testHappyPathThroughRevoke | NONE | Vendor, Regulator | submit, approve, revoke | REVOKED; bukti utuh; alasan tersimpan | ✔ lulus |
+| testUnregisteredVendorCannotSubmit | NONE | Stranger | submit | AccessControlUnauthorizedAccount(stranger, VENDOR_ROLE); record tetap | ✔ lulus |
+| testVendorCannotApprove | SUBMITTED | Vendor | approve | AccessControlUnauthorizedAccount(vendor, REGULATOR_ROLE); record tetap | ✔ lulus |
+| testApproveUnknownRevertsWithExactError | NONE | Regulator | approve | InvalidStatus(id, SUBMITTED, NONE) | ✔ lulus |
+| testDuplicateCannotOverwriteRecord | SUBMITTED | Vendor | submit ulang | InvalidStatus(id, NONE, SUBMITTED); record tetap | ✔ lulus |
+| testEmptyIdReverts / testEmptyEvidenceReverts | NONE | Vendor | submit input kosong | EmptyId / EmptyEvidence | ✔ lulus |
+| testRevokeBeforeApprovalReverts | SUBMITTED | Regulator | revoke | InvalidStatus(id, APPROVED, SUBMITTED) | ✔ lulus |
+| testEmptyReasonLeavesApprovedRecordUnchanged | APPROVED | Regulator | revoke(id, 0) | EmptyReason; record & alasan tetap | ✔ lulus |
+| testRevokedRecordCannotBeApprovedAgain | REVOKED | Regulator | approve | InvalidStatus(id, SUBMITTED, REVOKED) | ✔ lulus |
+| testVendorCannotGrantItselfRegulatorRole | SUBMITTED | Vendor | grantRole | Unauthorized (admin role); tidak ada eskalasi | ✔ lulus |
+| testRevokedVendorCannotSubmitNewRecord | SUBMITTED | Vendor (role dicabut) | submit ID baru | Unauthorized; record lama tetap | ✔ lulus |
+| testAdminCanReplaceRegulator | SUBMITTED | Regulator lama/baru | approve | lama ditolak, baru berhasil | ✔ lulus |
+| testApprovalEmitsExactAuditEvent | SUBMITTED | Regulator | approve | 1 event; from=1, to=2; actor benar | ✔ lulus |
+| testUnauthorizedCallLeavesNoContractLogs | SUBMITTED | Vendor | approve | revert; 0 log | ✔ lulus |
+| testCannotApproveOwnSubmission (individual, negatif) | SUBMITTED | Vendor+Regulator | approve | SelfApprovalNotAllowed; record tetap | ✔ lulus |
+| testOtherRegulatorCanApprove (individual, positif) | SUBMITTED | Regulator lain | approve | APPROVED | ✔ lulus |
+| testVendorCannotRevoke (tambahan) | APPROVED | Vendor | revoke | Unauthorized (REGULATOR_ROLE); record & alasan tetap | ✔ lulus |
+| testStrangerCannotRevoke (tambahan) | APPROVED | Stranger | revoke | Unauthorized (REGULATOR_ROLE); record tetap | ✔ lulus |
 
 ## 7. Bukti Field Tidak Berubah Saat Gagal
-`testEmptyReasonLeavesApprovedRecordUnchanged`: record APPROVED di-snapshot (`keccak256` dari vendor, evidenceHash, status, updatedAt), waktu dimajukan (`vm.warp(2000)`), lalu `revoke(ID, 0x0)` oleh regulator ditolak dengan `EmptyReason`. Snapshot sesudah call sama dengan sebelumnya, dan `revocationReasons(ID)` tetap 0. Bukti: `images/week10/` (output test).
+`testEmptyReasonLeavesApprovedRecordUnchanged`: record APPROVED di-snapshot (`keccak256` dari vendor, evidenceHash, status, updatedAt), waktu dimajukan (`vm.warp(2000)`), lalu `revoke(ID, 0x0)` oleh regulator ditolak dengan `EmptyReason`. Snapshot sesudah call sama dengan sebelumnya, dan `revocationReasons(ID)` tetap 0. Bukti: `images/minggu10/03-test-v2-pass.png` (test lulus).
 
 ## 8. Bukti Mutation Check
-**Mutasi 1 (approve):**
-- Kontrol dihapus: `onlyRole(REGULATOR_ROLE)` pada `approve`, baris `ISI_BARIS`.
-- Test gagal: `testVendorCannotApprove` dan `testUnauthorizedCallLeavesNoContractLogs`, dengan pesan `ISI_PESAN`. Karena Pilihan A, vendor tetap revert, tetapi dengan `SelfApprovalNotAllowed`, bukan error role, sehingga `_expectError` gagal pada "wrong error data".
-- Kontrol dipulihkan: seluruh 20 test lulus kembali.
+Setiap mutasi dikerjakan terpisah, lalu kode dipulihkan dengan `git checkout -- contracts/InspectionRegistryV2.sol` dan dipastikan `git diff` kosong.
 
-**Mutasi 2 (revoke):**
-- Kontrol dihapus: `onlyRole(REGULATOR_ROLE)` pada `revoke`, baris `ISI_BARIS`.
-- Test gagal: `testVendorCannotRevoke` dan `testStrangerCannotRevoke` (`ISI_PESAN`), karena vendor/stranger kini berhasil mencabut.
-- Kontrol dipulihkan: seluruh test lulus kembali.
+**Mutasi 1 (`approve`):**
+- **Kontrol dihapus:** `onlyRole(REGULATOR_ROLE)` pada fungsi `approve`, baris 70 (`InspectionRegistryV2.sol`).
+- **Hasil:** 23 passing, **3 failing**:
+  - `testVendorCannotApprove`
+  - `testUnauthorizedCallLeavesNoContractLogs`
+  - `testAdminCanReplaceRegulator`
+- **Alasan gagal:** karena Pilihan A, vendor tetap revert tetapi dengan `SelfApprovalNotAllowed`, bukan error role, sehingga `_expectError` gagal pada pesan `wrong error data`. `testAdminCanReplaceRegulator` gagal karena regulator lama yang role-nya sudah dicabut kini bisa approve (pesan `call should revert`).
+- **Kontrol dipulihkan:** seluruh 26 test lulus kembali.
 
-Bukti: `images/week10/mutation-fail.png`, `images/week10/mutation-restored.png`.
+![Mutasi approve](images/minggu10/04-mutation-approve-fail.png)
+
+**Mutasi 2 (`revoke`):**
+- **Kontrol dihapus:** `onlyRole(REGULATOR_ROLE)` pada fungsi `revoke`, baris 83.
+- **Hasil:** 24 passing, **2 failing**: `testVendorCannotRevoke` dan `testStrangerCannotRevoke`.
+- **Alasan gagal:** tanpa `onlyRole`, vendor dan stranger berhasil mencabut inspeksi, sehingga test gagal pada pesan `call should revert`.
+- **Kontrol dipulihkan:** seluruh 26 test lulus kembali.
+
+![Mutasi revoke](images/minggu10/05-mutation-revoke-fail.png)
+
+**Setelah pemulihan:** 26 passing.
+
+![Pemulihan](images/minggu10/06-mutation-restored-pass.png)
 
 ## 9. Pilihan Perubahan Individual
 - **Pilihan A: larangan self-approval.**
@@ -109,7 +124,10 @@ Bukti: `images/week10/mutation-fail.png`, `images/week10/mutation-restored.png`.
 
 **Keterbatasan.** `AccessControl` tidak dapat memastikan satu orang tidak memegang banyak wallet. Admin juga single point of failure: mencabut role regulator tanpa pengganti menghentikan proses persetujuan.
 
-**Deklarasi AI.** Alat: Gemini dan Claude. Bagian yang dibantu: penyalinan kode dari panduan, penyusunan template README, review kode (menemukan bahwa `revoke` belum memakai `onlyRole` dan OpenZeppelin belum ada di `package.json`). Verifikasi: menjalankan `npx hardhat test solidity` dan mutation check sendiri di WSL, serta membandingkan kode dengan panduan.
+**Deklarasi AI.** Alat: Gemini dan Claude. Bagian yang dibantu: penyusunan README, review kode (menemukan bahwa `revoke` belum memakai `onlyRole` dan OpenZeppelin belum ada di `package.json`). Verifikasi: menjalankan `npx hardhat test solidity` dan mutation check sendiri di WSL, serta membandingkan kode dengan panduan.
 
 ## 11. Refleksi
-Asumsi V1 yang berubah adalah satu regulator tetap diganti role dinamis. Di V1 `approve` hanya membandingkan `msg.sender` dengan `regulator`, sedangkan di V2 `onlyRole(REGULATOR_ROLE)` memungkinkan admin mengganti regulator, dibuktikan `testAdminCanReplaceRegulator`. Test `testVendorCannotApprove` menangkap kontrol akses yang hilang saat mutation check. Saat review, ternyata `revoke` sempat tidak memakai `onlyRole` dan semua test lama tetap lulus karena hanya memakai caller regulator. Itu saya perbaiki dengan `testVendorCannotRevoke` dan `testStrangerCannotRevoke`. Risiko yang belum teratasi: admin yang tunggal dapat mencabut role regulator tanpa pengganti, dan satu orang dapat memakai beberapa wallet sehingga `SelfApprovalNotAllowed` hanya memisahkan address, bukan manusia.
+Asumsi V1 yang berubah adalah satu regulator tetap diganti role dinamis. Di V1 `approve` hanya membandingkan `msg.sender` dengan `regulator`, sedangkan di V2 `onlyRole(REGULATOR_ROLE)` memungkinkan admin mengganti regulator, dibuktikan `testAdminCanReplaceRegulator`. Test `testVendorCannotApprove` menangkap kontrol akses yang hilang saat mutation check. Saat review, ternyata `revoke` sempat tidak memakai `onlyRole` dan semua test lama tetap lulus karena hanya memakai caller regulator. Celah itu saya tutup dengan `testVendorCannotRevoke` dan `testStrangerCannotRevoke`, lalu saya buktikan lewat mutation check yang membuat kedua test gagal. Risiko yang belum teratasi: admin yang tunggal dapat mencabut role regulator tanpa pengganti, dan satu orang dapat memakai beberapa wallet sehingga `SelfApprovalNotAllowed` hanya memisahkan address, bukan manusia.
+
+## 12. Bukti Git
+![Status Git](images/minggu10/07-git-status-log.png)
